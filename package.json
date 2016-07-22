@@ -1,0 +1,28 @@
+{
+  "name": "coffee-shop-example",
+  "version": "0.0.1",
+  "description": "Coffee Shop Example",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phonglk/CoffeeShopExample.git"
+  },
+  "keywords": [
+    "coffee-shop",
+    "example",
+    "excercise",
+    "front-end",
+    "back-end",
+    "nodejs",
+    "polymer"
+  ],
+  "author": "Le Khoi-Phong",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/phonglk/CoffeeShopExample/issues"
+  },
+  "homepage": "https://github.com/phonglk/CoffeeShopExample#readme"
+}
