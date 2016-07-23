@@ -1,0 +1,136 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="do-order-view">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      span {
+        @apply(--paper-font-body1);
+      }
+
+      .menu__table header,
+      .menu__row{
+        display: flex;
+        margin: 5px;
+        padding: 5px 0;
+        border-bottom: 1px solid black;
+      }
+      .header__item,
+      .menu__item {
+        flex: 1 1 auto;
+      }
+      .drink {
+        flex-basis: 100px;
+        flex-grow: 0;
+      }
+      .menu__table header{
+        border-bottom: 2px solid black;
+      }
+      .menu__table header .size{
+        text-align: center;
+      }
+      .menu__row:last-child{
+        border-bottom: none;
+      }
+      .menu__item {
+        line-height: 30px;
+      }
+      .menu__item.size {
+        border: 1px solid black;
+        display: block;
+        text-align: center;
+        margin: 0 2px;
+      }
+    </style>
+    <iron-request id="xhr"></iron-request>
+    <iron-ajax auto url="/api/view/order" handle-as="json" on-response="handleResponse"></iron-ajax>
+
+    <div class="menu__table">
+      <header>
+        <div class="header__item drink">
+          Drinks
+        </div>
+        <template is="dom-repeat" items="{{sizeList}}">
+          <div class="header__item size">
+            {{item.Name}}
+          </div>
+        </template>
+      </header>
+      <section>
+        <template is="dom-repeat" items="{{productList}}">
+          <div class="menu__row">
+            <div class="menu__item drink">{{item.Name}}</div>
+            <template is="dom-repeat" items="{{item.sizeList}}">
+              <div class="menu__item size">{{item.SizeName}}</div>
+
+            </template>
+          </div>
+        </template>
+      </section>
+    </div>
+  </template>
+
+  <script>
+    const UISorting = ['Tall', 'Grande', 'Venti'];
+
+    function sortSize(array, key = 'Name', order = UISorting){
+      return array.sort( (a, b) => order.indexOf(a[key]) - order.indexOf(b[key]));
+    }
+
+    class DoOrderView {
+      beforeRegister() {
+        this.is = 'do-order-view';
+        this.properties = {
+          productList: {
+            type: Array,
+          },
+          sizeList: {
+            type: Array,
+          },
+          variantList: {
+            type: Array,
+          }
+        }
+      }
+
+      handleResponse(data) {
+        try{
+          const { products, sizes, variants } = data.detail.response;
+
+          this.sizeList = sortSize(sizes, 'Name');
+          this.variantList = variants;
+          this.productList = products.map( product => {
+            const id = product.Id;
+            return {
+              ...product,
+              sizeList: sortSize(variants.filter( ({ ProductId }) => ProductId === id)
+                        .map(v => ({
+                          ...v,
+                          SizeName: sizes.find( s => s.Id === v.SizeId).Name,
+                        })), 'SizeName'),
+            };
+          });
+        }catch(e){
+          console.error(e);
+          console.log("Sorry! An error has occured");
+        }
+      }
+    }
+    Polymer(DoOrderView);
+  </script>
+</dom-module>

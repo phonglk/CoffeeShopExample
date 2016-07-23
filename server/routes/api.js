@@ -36,6 +36,20 @@ router.get('/product/list/variant', function(req, res, next) {
   })
 });
 
+router.get('/view/order', function(req, res, next) {
+  Promise.all([
+    knex.select().from('Product'),
+    knex.select().from('Size'),
+    knex.select().from('ProductVariant'),
+  ]).then(function(response) {
+    res.json({
+      products: response[0],
+      sizes: response[1],
+      variants: response[2],
+    })
+  })
+})
+
 router.get('/product/:productId/:sizeId', function(req, res, next) {
   // size param checking is ignore here
   // as well as productId
