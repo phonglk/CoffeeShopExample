@@ -66,7 +66,7 @@ router.get('/product/:productId/:sizeId', function(req, res, next) {
 router.post('/order/:variantId', function(req, res, next) {
   knex('Order').insert({ProductVariantId: req.params.variantId, PurchaseDate: new Date()})
               .then(function(output) {
-                res.json(output)
+                res.json(output);
               })
 });
 

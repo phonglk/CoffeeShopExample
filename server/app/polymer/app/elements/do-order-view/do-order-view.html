@@ -13,12 +13,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
 
 <dom-module id="do-order-view">
   <template>
     <style>
       :host {
         display: block;
+        position: relative;
+      }
+
+      #overlay {
+        display: block;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 99;
+        background-color: rgba(255,255,255,0.3);
+      }
+
+      paper-progress {
+        width: 100%;
+        position: absolute;
+        top:0;
+        z-index: 100;
+        left:0;
       }
 
       span {
@@ -79,11 +100,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </paper-dialog>
 
-    <iron-request id="xhr"></iron-request>
+    <iron-ajax url="" handle-as="json" id="send" method="POST" loading="{{isSendingOrder}}"></iron-ajax>
     <iron-ajax auto url="/api/view/order" handle-as="json" on-response="handleResponse"></iron-ajax>
 
-    <h1 class='page-title' tabindex="-1">Order</h1>
+    <template is="dom-if" if="{{isSendingOrder}}">
+      <div id="overlay"></div>
+      <paper-progress indeterminate value="800" min="100" max="1000"></paper-progress>
+    </template>
 
+    <h1 class='page-title' tabindex="-1">Order</h1>
     <div class="menu__table">
       <header>
         <div class="header__item drink">
@@ -130,15 +155,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           },
           selectedItem: {
             type: Object,
+          },
+          isSendingOrder: {
+            type: Boolean,
+            value: false,
           }
         }
+      }
+
+      sendOrder(id) {
+        this.$.send.url = `/api/order/${id}`;
+        return this.$.send.generateRequest().completes;
       }
 
       handleConfirmation(e){
         const { canceled, confirmed } = e.detail;
         if(confirmed === true) {
-          const { SizeName, ProductName, Price } = this.selectedItem;
-          app.$.toast.text = `You have just purchased ${SizeName} ${ProductName} (${Price}\$)`;
+          const { SizeName, ProductName, Price, Id } = this.selectedItem;
+          const productTitle = `${SizeName} ${ProductName} (${Price}\$)`;
+          app.$.toast.text = `Sending order ${productTitle}`;
+          const request = this.sendOrder(Id);
+          request.then(() => {
+            app.$.toast.text = `You have just purchased ${productTitle}`;
+          })
+          this.selectedItem = {};
         } else {
           app.$.toast.text = 'You have canceled the order';
         }
