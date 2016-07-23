@@ -40,7 +40,9 @@ router.get('/view/order', function(req, res, next) {
   Promise.all([
     knex.select().from('Product'),
     knex.select().from('Size'),
-    knex.select().from('ProductVariant'),
+    knex.raw('Select ProductVariant.Id, ProductVariant.ProductId, Product.Name as ProductName, Size.Name as SizeName' +
+    ', ProductVariant.Price from ProductVariant, Product, Size where ' +
+    'ProductVariant.SizeId = Size.Id and ProductVariant.ProductId = Product.Id'),
   ]).then(function(response) {
     res.json({
       products: response[0],

@@ -11,6 +11,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-styles/typography.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 
 <dom-module id="do-order-view">
   <template>
@@ -36,6 +38,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
       .drink {
         flex-basis: 100px;
+        flex-shrink: 0;
         flex-grow: 0;
       }
       .menu__table header{
@@ -50,15 +53,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       .menu__item {
         line-height: 30px;
       }
+      .menu__item.drink {
+        line-height: 50px;
+      }
       .menu__item.size {
-        border: 1px solid black;
+        /*border: 1px solid black;*/
         display: block;
         text-align: center;
-        margin: 0 2px;
+        margin: 0 5px;
+      }
+      .menu__item.size paper-button {
+        width: 100%;
+        font-size: 18px;
+        background-color: var(--paper-indigo-500);
+        color: white;
+        font-weight: light;
       }
     </style>
+    <paper-dialog id="confirm" on-iron-overlay-closed="handleConfirmation">
+      <h2>Confirmation</h2>
+      <p>Are you sure you want to order <b>{{selectedItem.SizeName}} {{selectedItem.ProductName}}</b> which cost <i>{{selectedItem.Price}}$</i> ?</p>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Decline</paper-button>
+        <paper-button dialog-confirm autofocus>Accept</paper-button>
+      </div>
+    </paper-dialog>
+
     <iron-request id="xhr"></iron-request>
     <iron-ajax auto url="/api/view/order" handle-as="json" on-response="handleResponse"></iron-ajax>
+
+    <h1 class='page-title' tabindex="-1">Order</h1>
 
     <div class="menu__table">
       <header>
@@ -72,12 +96,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </template>
       </header>
       <section>
+
         <template is="dom-repeat" items="{{productList}}">
           <div class="menu__row">
             <div class="menu__item drink">{{item.Name}}</div>
             <template is="dom-repeat" items="{{item.sizeList}}">
-              <div class="menu__item size">{{item.SizeName}}</div>
-
+              <div class="menu__item size">
+                <paper-button raised on-tap="handleSelection" data-item="item.Id">{{item.Price}}$</paper-button>
+              </div>
             </template>
           </div>
         </template>
@@ -102,10 +128,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           sizeList: {
             type: Array,
           },
-          variantList: {
-            type: Array,
+          selectedItem: {
+            type: Object,
           }
         }
+      }
+
+      handleConfirmation(e){
+        const { canceled, confirmed } = e.detail;
+        if(confirmed === true) {
+          const { SizeName, ProductName, Price } = this.selectedItem;
+          app.$.toast.text = `You have just purchased ${SizeName} ${ProductName} (${Price}\$)`;
+        } else {
+          app.$.toast.text = 'You have canceled the order';
+        }
+        app.$.toast.show();
+      }
+
+      handleSelection(e){
+        const item = e.model.item;
+        this.selectedItem = item;
+        console.debug('handleSelection', item);
+        this.$.confirm.open();
       }
 
       handleResponse(data) {
@@ -113,18 +157,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           const { products, sizes, variants } = data.detail.response;
 
           this.sizeList = sortSize(sizes, 'Name');
-          this.variantList = variants;
           this.productList = products.map( product => {
             const id = product.Id;
             return {
               ...product,
-              sizeList: sortSize(variants.filter( ({ ProductId }) => ProductId === id)
-                        .map(v => ({
-                          ...v,
-                          SizeName: sizes.find( s => s.Id === v.SizeId).Name,
-                        })), 'SizeName'),
+              sizeList: sortSize(variants.filter( ({ ProductId }) => ProductId === id) , 'SizeName'),
             };
           });
+          console.log(this.productList);
         }catch(e){
           console.error(e);
           console.log("Sorry! An error has occured");

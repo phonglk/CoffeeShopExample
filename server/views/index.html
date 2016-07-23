@@ -49,6 +49,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <!-- build:js bower_components/webcomponentsjs/webcomponents-lite.min.js -->
   <script src="/polymer/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <script>
+    window.Polymer = {
+      dom: 'shadow',
+      lazyRegister: true,
+    }
+  </script>
   <!-- endbuild -->
 
   <!-- Because this project uses vulcanize this should be your only html import
@@ -171,8 +177,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <section data-route="order" tabindex="-1">
               <paper-material elevation="1">
-                <h1 class='page-title' tabindex="-1">Do order view</h1>
                 <do-order-view></do-order-view>
+                <div class="page-title" />
               </paper-material>
             </section>
           </iron-pages>
