@@ -12,6 +12,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/paper-styles/typography.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu-light.html">
 
 <dom-module id="sales-view">
   <template>
@@ -20,11 +24,65 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         display: block;
         position: relative;
       }
-
+      #table-wrapper {
+        width: 100%;
+        overflow: auto;
+      }
+      table {
+        width: 100%;
+        min-width: 500px;
+        border-collapse: collapse;
+      }
+      tr {
+        padding: 2px 4px;
+        /*border-bottom: 1px solid black;*/
+      }
+      th, td {
+        font-size: 14px;
+        text-align: right;
+        line-height: 20px;
+        border-bottom: 1px solid black;
+      }
+      tr:last-of-type {
+        border-bottom: none;
+      }
     </style>
-    <!-- <iron-ajax auto url="/api/view/order" handle-as="json" on-response="handleResponse"></iron-ajax> -->
-
+    <iron-ajax auto url="/api/view/sales/all/all" handle-as="json" on-response="responseHandler"></iron-ajax>
     <h1 class='page-title' tabindex="-1">Sales statistic</h1>
+
+    <paper-dropdown-menu label="Dinosaurs">
+      <paper-listbox class="dropdown-content">
+        <paper-item>allosaurus</paper-item>
+        <paper-item>brontosaurus</paper-item>
+        <paper-item>carcharodontosaurus</paper-item>
+        <paper-item>diplodocus</paper-item>
+      </paper-listbox>
+    </paper-dropdown-menu>
+    <div>Total: <b>{{data.SUM}}$</b></div>
+    <div id="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>DateTime</th>
+            <th>Type</th>
+            <th>Drink</th>
+            <th>Price $</th>
+            <th>Size</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template is="dom-repeat" items="{{data.rows}}">
+            <tr>
+              <td>{{item.PurchaseDate}}</td>
+              <td>{{item.Type}}</td>
+              <td>{{item.Product}}</td>
+              <td>{{item.Price}}</td>
+              <td>{{item.Size}}</td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
   </template>
 
   <script>
@@ -32,7 +90,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       beforeRegister() {
         this.is = 'sales-view';
         this.properties = {
-
+          data: {
+            type: Object,
+          }
+        }
+      }
+      responseHandler(e) {
+        const { SUM, rows } = e.detail.response;
+        this.data = {
+          SUM,
+          rows: rows.map( r => ({
+            ...r,
+            PurchaseDate: new Date(r.PurchaseDate).toString(),
+          }))
         }
       }
     }

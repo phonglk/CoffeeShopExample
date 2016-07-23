@@ -41,7 +41,7 @@ router.get('/view/order', function(req, res, next) {
     knex.select().from('Product'),
     knex.select().from('Size'),
     knex.raw('Select ProductVariant.Id, ProductVariant.ProductId, Product.Name as ProductName, Size.Name as SizeName' +
-    ', ProductVariant.Price from ProductVariant, Product, Size where ' +
+    ', ProductVariant.Price, Product.Type from ProductVariant, Product, Size where ' +
     'ProductVariant.SizeId = Size.Id and ProductVariant.ProductId = Product.Id'),
   ]).then(function(response) {
     res.json({
@@ -64,38 +64,99 @@ router.get('/product/:productId/:sizeId', function(req, res, next) {
 });
 
 router.post('/order/:variantId', function(req, res, next) {
-  knex('Order').insert({ProductVariantId: req.params.variantId, PurchaseDate: new Date()})
-              .then(function(output) {
-                res.json(output);
-              })
+  var vId = req.params.variantId;
+  knex('ProductVariant').where({Id: vId}).then(function(v) {
+    if (v.length > 0) {
+      var price = v[0].Price;
+      knex('Order')
+        .insert({
+          ProductVariantId: vId,
+          Price: price,
+          PurchaseDate: new Date()
+        })
+        .then(function(output) {
+          res.json(output);
+        })
+    } else {
+      res.json({error: true})
+    }
+  })
 });
 
-router.get('/order_filter/:sizeId?/:productId?', function(req, res, next) {
-  var sizeId = req.params.sizeId;
-  var productId = req.params.productId;
+function orderFilterSQLGenerator(sizeId, type, isSum){
   var whereArray = [];
-  var sql = 'select * From "Order" ' //where ProductVariantId = (SELECT Id From ProductVariant where ProductId = ? and SizeId = ?)';
+  var sql =  'SELECT ' +  (isSum ? 'SUM("Order".Price) as Total' : ('"Order".Price, "Order".PurchaseDate, Product.Name as Product' +
+  ', Size.Name as Size, Product.Type')) + ' From "Order", Product, Size, "ProductVariant" where ' +
+  '"Order".ProductVariantId = ProductVariant.Id and ProductVariant.ProductId = Product.Id ' +
+  'and ProductVariant.SizeId = Size.Id';
+
   var selectSql = '';
 
   if(isU(sizeId)) sizeId = ALL;
-  if(isU(productId)) productId = ALL;
+  if(isU(type)) type = ALL;
 
   if (sizeId !== ALL) {
     selectSql = 'SizeId = ?';
     whereArray.push(sizeId);
   }
 
-  if (productId !== ALL) {
+  if (type !== ALL) {
     if(selectSql !== '') selectSql += ' and ';
-    selectSql += 'ProductId = ?';
-    whereArray.push(productId);
+    selectSql += 'Product.Type = ?';
+    whereArray.push(type);
   }
 
-  if(selectSql !== '') sql += 'where ProductVariantId IN (SELECT Id From ProductVariant where ' + selectSql + ')';
-  console.log(sql);
-  knex.raw(sql, whereArray).then(function (rows){
+  if(selectSql !== '') sql += ' and ProductVariantId IN (SELECT Id From ProductVariant where ' + selectSql + ')';
+  sql += ' ORDER BY "Order".PurchaseDate DESC'
+  return {
+    sql: sql,
+    whereArray, whereArray,
+  };
+}
+
+router.get('/order_filter/:sizeId?/:type?', function(req, res, next) {
+  var sizeId = req.params.sizeId;
+  var type = req.params.type;
+
+  const sqlObject = orderFilterSQLGenerator(sizeId, type, false)
+
+  knex.raw(sqlObject.sql, sqlObject.whereArray).then(function (rows){
     res.json(rows);
   });
 });
+
+router.get('/order_sum/:sizeId?/:type?', function(req, res, next) {
+  var sizeId = req.params.sizeId;
+  var productId = req.params.productId;
+
+  const sqlObject = orderFilterSQLGenerator(sizeId, type, true);
+
+  knex.raw(sqlObject.sql, sqlObject.whereArray).then(function (rows){
+    res.json(rows);
+  });
+});
+
+router.get('/view/sales/:sizeId/:type', function(req, res, next) {
+  var sizeId = req.params.sizeId;
+  var type = req.params.type;
+
+  const sqlRecords = orderFilterSQLGenerator(sizeId, type, false);
+  const sqlSum = orderFilterSQLGenerator(sizeId, type, true);
+
+  Promise.all([
+    knex.raw(sqlRecords.sql, sqlRecords.whereArray),
+    knex.raw(sqlSum.sql, sqlSum.whereArray),
+  ]).then(function(response){
+    res.json({
+      SUM: parseFloat(response[1][0].Total.toPrecision(12)),
+      rows: response[0],
+    });
+  }).catch(function(e) {
+    res.jsn({
+      error: true,
+      message: e,
+    })
+  })
+})
 
 module.exports = router;

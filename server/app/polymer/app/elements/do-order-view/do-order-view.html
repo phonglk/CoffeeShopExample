@@ -173,7 +173,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <section>
 
         <template is="dom-repeat" items="{{productList}}">
-          <div class="menu__row">
+          <div class="menu__row" data-drink-type$="{{item.Type}}">
             <div class="menu__item drink">{{item.Name}}</div>
             <template is="dom-repeat" items="{{item.sizeList}}">
               <div class="menu__item size">
@@ -190,9 +190,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 
   <script>
-    const UISorting = ['Tall', 'Grande', 'Venti'];
+    const SizeSorting = ['Tall', 'Grande', 'Venti'];
+    const TypeSorting = ['Coffee', 'Tea']
 
-    function sortSize(array, key = 'Name', order = UISorting){
+    function sortSize(array, key = 'Name', order = SizeSorting){
       return array.sort( (a, b) => order.indexOf(a[key]) - order.indexOf(b[key]));
     }
 
@@ -250,13 +251,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           const { products, sizes, variants } = data.detail.response;
 
           this.sizeList = sortSize(sizes, 'Name');
-          this.productList = products.map( product => {
-            const id = product.Id;
-            return {
-              ...product,
-              sizeList: sortSize(variants.filter( ({ ProductId }) => ProductId === id) , 'SizeName'),
-            };
-          });
+          this.productList = products
+            .map( product => {
+              const id = product.Id;
+              return {
+                ...product,
+                sizeList: sortSize(variants.filter( ({ ProductId }) => ProductId === id) , 'SizeName'),
+              };
+            })
+            .sort( (a, b) => {
+              const typeCheck = TypeSorting.indexOf(a.Type) - TypeSorting.indexOf(b.Type); // sort by type
+              if(typeCheck !== 0) return typeCheck;
+              else return a.Id - b.Id // if same type, sort by id
+            });
           console.log(this.productList);
         }catch(e){
           console.error(e);
