@@ -46,6 +46,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         @apply(--paper-font-body1);
       }
 
+      .menu__table{
+        min-width: 465px;
+      }
+
       .menu__table header,
       .menu__row{
         display: flex;
@@ -62,13 +66,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         flex-shrink: 0;
         flex-grow: 0;
       }
-      .menu__table header{
+      .menu__table header {
         border-bottom: 2px solid black;
       }
       .menu__table header .size{
         text-align: center;
       }
-      .menu__row:last-child{
+      .menu__row:last-of-type{
         border-bottom: none;
       }
       .menu__item {
@@ -89,6 +93,52 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         background-color: var(--paper-indigo-500);
         color: white;
         font-weight: light;
+        display: flex;
+      }
+      .menu__item.size paper-button .size-name,
+      .menu__item.size paper-button .price {
+        flex: 1 1 auto;
+      }
+
+      .menu__item.size paper-button .size-name {
+        display: none;
+      }
+
+      /*.menu__item.size paper-button .price {
+        text-align: right;
+      }*/
+
+      @media (max-width: 600px) {
+        .menu__table {
+          min-width: 0;
+        }
+        .menu__table header {
+          display: none;
+        }
+        .menu__table header,
+        .menu__row{
+          flex-direction: column;
+        }
+        .menu__row {
+          padding-bottom: 20px;
+        }
+        .drink {
+          line-height: 30px;
+          flex-basis: 30px;
+          text-align: center;
+        }
+        .menu__item.size {
+          margin: 5px 0;
+        }
+
+        .menu__item.size paper-button .size-name {
+          display: block;
+          text-align: left;
+        }
+
+        .menu__item.size paper-button .price {
+          text-align: right;
+        }
       }
     </style>
     <paper-dialog id="confirm" on-iron-overlay-closed="handleConfirmation">
@@ -127,7 +177,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="menu__item drink">{{item.Name}}</div>
             <template is="dom-repeat" items="{{item.sizeList}}">
               <div class="menu__item size">
-                <paper-button raised on-tap="handleSelection" data-item="item.Id">{{item.Price}}$</paper-button>
+                <paper-button raised on-tap="handleSelection" data-item="item.Id">
+                  <span class="size-name">{{item.SizeName}}</span>
+                  <span class="price">{{item.Price}}$</span>
+                </paper-button>
               </div>
             </template>
           </div>
