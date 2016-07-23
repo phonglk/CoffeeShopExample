@@ -88,19 +88,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <span>Home</span>
           </a>
 
-          <a data-route="users" href="{{baseUrl}}users">
-            <iron-icon icon="info"></iron-icon>
-            <span>Users</span>
-          </a>
-
-          <a data-route="contact" href="{{baseUrl}}contact">
-            <iron-icon icon="mail"></iron-icon>
-            <span>Contact</span>
-          </a>
-
           <a data-route="order" href="{{baseUrl}}order">
-            <iron-icon icon="editor:attach-money"></iron-icon>
+            <iron-icon icon="maps:local-cafe"></iron-icon>
             <span>Order</span>
+          </a>
+
+          <a data-route="sales" href="{{baseUrl}}sales">
+            <iron-icon icon="editor:attach-money"></iron-icon>
+            <span>Sales</span>
           </a>
         </paper-menu>
       </paper-scroll-header-panel>
@@ -150,35 +145,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               </paper-material>
             </section>
 
-            <section data-route="users" tabindex="-1">
-              <paper-material elevation="1">
-                <h1 class="page-title" tabindex="-1">Users</h1>
-                <p>This is the users section</p>
-                <a href$="{{baseUrl}}users/Addy">Addy</a><br>
-                <a href$="{{baseUrl}}users/Rob">Rob</a><br>
-                <a href$="{{baseUrl}}users/Chuck">Chuck</a><br>
-                <a href$="{{baseUrl}}users/Sam">Sam</a>
-              </paper-material>
-            </section>
-
-            <section data-route="user-info" tabindex="-1">
-              <paper-material elevation="-1">
-                <h1 class="page-title" tabindex="-1">User: {{params.name}}</h1>
-                <div>This is {{params.name}}'s section</div>
-              </paper-material>
-            </section>
-
-            <section data-route="contact" tabindex="-1">
-              <paper-material elevation="1">
-                <h1 class="page-title" tabindex="-1">Contact</h1>
-                <p>This is the contact section</p>
-              </paper-material>
-            </section>
-
             <section data-route="order" tabindex="-1">
               <paper-material elevation="1">
+                <div class="page-title"></div>
                 <do-order-view></do-order-view>
-                <div class="page-title" />
+              </paper-material>
+            </section>
+
+            <section data-route="sales" tabindex="-1">
+              <paper-material elevation="1">
+                <div class="page-title"></div>
+                <sales-view></sales-view>
               </paper-material>
             </section>
           </iron-pages>

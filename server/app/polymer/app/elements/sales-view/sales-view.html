@@ -10,39 +10,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
 
-<dom-module id="my-greeting">
+<dom-module id="sales-view">
   <template>
-    <style include="shared-styles">
+    <style>
       :host {
         display: block;
+        position: relative;
       }
 
-      span,
-      input {
-        @apply(--paper-font-body2);
-      }
     </style>
+    <!-- <iron-ajax auto url="/api/view/order" handle-as="json" on-response="handleResponse"></iron-ajax> -->
 
-    <h1 class="page-title" tabindex="-1">{{greeting}}</h1>
-    <label for="greeting-input">Update text to change the greeting !!!!.</label>
-    <!-- Listens for "input" event and sets greeting to <input>.value -->
-    <input id="greeting-input" value="{{greeting::input}}">
+    <h1 class='page-title' tabindex="-1">Sales statistic</h1>
   </template>
 
   <script>
-    class MyGreeting {
+    class SalesView {
       beforeRegister() {
-        this.is = 'my-greeting';
+        this.is = 'sales-view';
         this.properties = {
-          greeting: {
-            type: String,
-            value: 'Welcome!',
-            notify: true
-          }
+
         }
       }
     }
-    Polymer(MyGreeting)
+    Polymer(SalesView);
   </script>
 </dom-module>
