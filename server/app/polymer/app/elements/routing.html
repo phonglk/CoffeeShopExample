@@ -41,12 +41,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       next();
     });
 
-    // page('/', function() {
-    //   app.route = 'home';
-    //   setFocus(app.route);
-    // });
-
     page(app.baseUrl, function() {
+      app.route = 'home';
+      setFocus(app.route);
+    });
+
+    page(app.baseUrl + 'home', function() {
       app.route = 'home';
       setFocus(app.route);
     });
@@ -62,10 +62,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     });
 
     // 404
-    page('*', function() {
+    page(app.baseUrl + '*', function() {
       app.$.toast.text = 'Can\'t find: ' + window.location.href  + '. Redirected you to Home Page';
       app.$.toast.show();
-      page.redirect(app.baseUrl);
+      page.redirect(app.baseUrl+'home');
     });
 
     // add #! before urls
