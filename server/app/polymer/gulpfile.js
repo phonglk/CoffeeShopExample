@@ -230,6 +230,11 @@ gulp.task('serve', ['styles', 'js'], function() {
     proxy: {
       target: "localhost:3000/polymer",
       ws: true,
+      proxyReq: [
+          function(proxyReq) {
+              proxyReq.setHeader('X-Development-Proxy', 'true');
+          },
+      ],
     },
     notify: false,
     logPrefix: 'PSK',
