@@ -53,27 +53,53 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         text-align: center;
         font-style: italic;
       }
+
+      .filter-wrapper {
+        display: flex;
+        align-content: center;
+        align-items: center;
+      }
+      .filter-wrapper > *{
+        margin: 0 5px;
+      }
+
+      .filter-wrapper .label {
+        display: block;
+        padding-top: 30px;
+      }
+
+      @media (max-width: 600px) {
+        .filter-wrapper {
+          flex-direction: column;
+        }
+        .filter-wrapper * {
+          flex: 1 1 auto;
+          width: 100%;
+        }
+      }
     </style>
     <iron-ajax id="xhr" url="/api/view/sales/{{selectedSize}}/{{selectedType}}" handle-as="json" on-response="responseHandler" loading="{{isRequesting}}"></iron-ajax>
     <h1 class='page-title' tabindex="-1">Sales statistic</h1>
 
-    Filter:
-    <paper-dropdown-menu label="Type" on-iron-select="handleTypeSelect">
-      <paper-listbox class="dropdown-content" selected="0">
-        <paper-item value="all">*</paper-item>
-        <paper-item value="Coffee">Coffee</paper-item>
-        <paper-item value="Tea">Tea</paper-item>
-      </paper-listbox>
-    </paper-dropdown-menu>
+    <div class="filter-wrapper">
+      <span class="label">Filter:</span>
+      <paper-dropdown-menu label="Type" on-iron-select="handleTypeSelect">
+        <paper-listbox class="dropdown-content" selected="0">
+          <paper-item value="all">*</paper-item>
+          <paper-item value="Coffee">Coffee</paper-item>
+          <paper-item value="Tea">Tea</paper-item>
+        </paper-listbox>
+      </paper-dropdown-menu>
 
-    <paper-dropdown-menu label="Size" on-iron-select="handleSizeSelect">
-      <paper-listbox class="dropdown-content" selected="0">
-        <paper-item value="all">*</paper-item>
-        <template is="dom-repeat" items="{{sizeList}}">
-          <paper-item value$="{{item.Id}}">{{item.Name}}</paper-item>
-        </template>
-      </paper-listbox>
-    </paper-dropdown-menu>
+      <paper-dropdown-menu label="Size" on-iron-select="handleSizeSelect">
+        <paper-listbox class="dropdown-content" selected="0">
+          <paper-item value="all">*</paper-item>
+          <template is="dom-repeat" items="{{sizeList}}">
+            <paper-item value$="{{item.Id}}">{{item.Name}}</paper-item>
+          </template>
+        </paper-listbox>
+      </paper-dropdown-menu>
+    </div>
 
     <template is="dom-if" if="{{isRequesting}}">
       <paper-progress indeterminate value="800" min="100" max="1000"></paper-progress>
