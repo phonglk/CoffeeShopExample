@@ -34,8 +34,6 @@ jspm_packages
 .npm
 .node_repl_history
 
-server/public/polymer/
-
 logs
 *.log
 pids
@@ -43,3 +41,5 @@ pids
 *.seed
 lib-cov
 npm-debug.log
+
+public/polymer
