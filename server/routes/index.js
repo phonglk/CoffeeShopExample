@@ -4,7 +4,7 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/polymer*', function(req, res, next) {
-  res.sendFile(path.join(__dirname, '../views/index.html'));
+  res.render('index');
 });
 
 module.exports = router;
