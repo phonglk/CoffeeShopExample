@@ -158,7 +158,6 @@ router.get('/view/sales/:sizeId/:type', function(req, res, next) {
 
   const sqlRecords = orderFilterSQLGenerator(sizeId, type, false);
   const sqlSum = orderFilterSQLGenerator(sizeId, type, true);
-  console.log(sqlRecords.sql)
   Promise.all([
     knex.raw(sqlRecords.sql, sqlRecords.whereArray),
     knex.raw(sqlSum.sql, sqlSum.whereArray),
