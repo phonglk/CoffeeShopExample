@@ -6,10 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./bin/www",
-    "postinstall": "cd app/polymer; ../../node_modules/bower/bin/bower install; npm install --dev; ./node_modules/gulp/bin/gulp"
+    "postinstall": "cd app/polymer; npm install --only=dev; ./node_modules/bower/bin/bower install;./node_modules/gulp/bin/gulp.js"
   },
   "dependencies": {
-    "bower": "0.6.x",
     "body-parser": "~1.15.1",
     "cookie-parser": "~1.4.3",
     "debug": "~2.2.0",
