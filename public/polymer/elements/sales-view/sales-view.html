@@ -1,0 +1,196 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+--><html><head><link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu-light.html">
+
+</head><body><dom-module id="sales-view">
+  <template>
+    <style>
+      :host {
+        display: block;
+        position: relative;
+      }
+      #table-wrapper {
+        width: 100%;
+        overflow: auto;
+      }
+      paper-progress {
+        width: 100%;
+      }
+      table {
+        width: 100%;
+        min-width: 500px;
+        border-collapse: collapse;
+      }
+      tr {
+        padding: 2px 4px;
+        /*border-bottom: 1px solid black;*/
+      }
+      th, td {
+        font-size: 14px;
+        text-align: right;
+        line-height: 20px;
+        border-bottom: 1px solid black;
+      }
+      tr:last-of-type {
+        border-bottom: none;
+      }
+      tr.no-record td {
+        text-align: center;
+        font-style: italic;
+      }
+
+      .filter-wrapper {
+        display: flex;
+        align-content: center;
+        align-items: center;
+      }
+      .filter-wrapper > *{
+        margin: 0 5px;
+      }
+
+      .filter-wrapper .label {
+        display: block;
+        padding-top: 30px;
+      }
+
+      .col-name {
+        display: none;
+      }
+
+      @media (max-width: 600px) {
+        .filter-wrapper {
+          flex-direction: column;
+        }
+        .filter-wrapper * {
+          flex: 1 1 auto;
+          width: 100%;
+        }
+        table {
+          min-width: 100px;
+        }
+        thead {
+          display: none;
+        }
+        tbody {
+          padding: 2px;
+          display: flex;
+          flex-direction: column;
+        }
+        tbody tr {
+          display: flex;
+          flex-direction: column;
+          margin-top: 20px;
+          box-shadow: 1px 1px 4px 0px rgba(162, 162, 162, 0.8);
+        }
+        tbody tr td {
+          display: flex;
+          width: 100%;
+          flex-direction: row;
+        }
+        td {
+          border-bottom: none;
+        }
+        .col-name {
+          font-weight: bold;
+          display: block;
+          text-align: left;
+          flex: 1 0 80px;
+        }
+        .col-value {
+          text-align: right;
+          flex: 1 1 auto;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    </style>
+    <iron-ajax id="xhr" url="/api/view/sales/{{selectedSize}}/{{selectedType}}" handle-as="json" on-response="responseHandler" loading="{{isRequesting}}"></iron-ajax>
+    <h1 class="page-title" tabindex="-1">Sales Statistic</h1>
+
+    <div class="filter-wrapper">
+      <span class="label">Filter:</span>
+      <paper-dropdown-menu label="Type" on-iron-select="handleTypeSelect">
+        <paper-listbox class="dropdown-content" selected="0">
+          <paper-item value="all">*</paper-item>
+          <paper-item value="Coffee">Coffee</paper-item>
+          <paper-item value="Tea">Tea</paper-item>
+        </paper-listbox>
+      </paper-dropdown-menu>
+
+      <paper-dropdown-menu label="Size" on-iron-select="handleSizeSelect">
+        <paper-listbox class="dropdown-content" selected="0">
+          <paper-item value="all">*</paper-item>
+          <template is="dom-repeat" items="{{sizeList}}">
+            <paper-item value$="{{item.Id}}">{{item.Name}}</paper-item>
+          </template>
+        </paper-listbox>
+      </paper-dropdown-menu>
+    </div>
+
+    <template is="dom-if" if="{{isRequesting}}">
+      <paper-progress indeterminate="" value="800" min="100" max="1000"></paper-progress>
+    </template>
+    <hr>
+    <div>Total: <b>{{data.SUM}}$</b></div>
+    <div id="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>DateTime</th>
+            <th>Type</th>
+            <th>Drink</th>
+            <th>Price $</th>
+            <th>Size</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template is="dom-repeat" items="{{data.rows}}">
+            <tr>
+              <td title="{{item.PurchaseDate}}">
+                <span class="col-name">DateTime</span>
+                <span class="col-value">{{item.PurchaseDate}}</span>
+              </td>
+              <td>
+                <span class="col-name">Type</span>
+                <span class="col-value">{{item.Type}}</span>
+              </td>
+              <td>
+                <span class="col-name">Drink</span>
+                <span class="col-value">{{item.Product}}</span>
+              </td>
+              <td>
+                <span class="col-name">Price</span>
+                <span class="col-value">{{item.Price}}</span>
+              </td>
+              <td>
+                <span class="col-name">Size</span>
+                <span class="col-value">{{item.Size}}</span>
+              </td>
+            </tr>
+          </template>
+          <template is="dom-if" if="{{isNoRecord}}">
+            <tr class="no-record">
+              <td colspan="5">There is no record for selected filter</td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+  </template>
+
+  </dom-module>
+<script src="sales-view.js"></script></body></html>
