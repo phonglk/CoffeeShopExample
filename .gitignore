@@ -2,7 +2,7 @@
 logs
 *.log
 npm-debug.log*
-
+public/polymer
 # Runtime data
 pids
 *.pid
@@ -41,5 +41,3 @@ pids
 *.seed
 lib-cov
 npm-debug.log
-
-public/polymer
