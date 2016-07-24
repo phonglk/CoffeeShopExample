@@ -142,7 +142,7 @@ gulp.task('copy', function() {
   // Add components to .tmp dir so they can get concatenated
   // when we vulcanize
   var tmp = gulp.src(['app/bower_components/**/*'])
-    .pipe(gulp.dest('../../public/polymer/bower_components'));
+    .pipe(gulp.dest('../../public/bower_components'));
 
   return merge(app, bower, tmp)
     .pipe($.size({
@@ -217,9 +217,6 @@ gulp.task('cache-config', function(callback) {
 gulp.task('clean', function() {
   return del([
     '../../public/polymer/**',
-    '!../../public/polymer',
-    '!../../public/polymer/bower_components',
-    '!../../public/polymer/bower_components/**',
     dist()
   ], { force: true });
 });
