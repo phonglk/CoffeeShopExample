@@ -28,6 +28,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         width: 100%;
         overflow: auto;
       }
+      paper-progress {
+        width: 100%;
+      }
       table {
         width: 100%;
         min-width: 500px;
@@ -46,8 +49,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       tr:last-of-type {
         border-bottom: none;
       }
+      tr.no-record td {
+        text-align: center;
+        font-style: italic;
+      }
     </style>
-    <iron-ajax id="xhr" url="/api/view/sales/{{selectedSize}}/{{selectedType}}" handle-as="json" on-response="responseHandler"></iron-ajax>
+    <iron-ajax id="xhr" url="/api/view/sales/{{selectedSize}}/{{selectedType}}" handle-as="json" on-response="responseHandler" loading="{{isRequesting}}"></iron-ajax>
     <h1 class='page-title' tabindex="-1">Sales statistic</h1>
 
     Filter:
@@ -67,6 +74,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </template>
       </paper-listbox>
     </paper-dropdown-menu>
+
+    <template is="dom-if" if="{{isRequesting}}">
+      <paper-progress indeterminate value="800" min="100" max="1000"></paper-progress>
+    </template>
     <hr />
     <div>Total: <b>{{data.SUM}}$</b></div>
     <div id="table-wrapper">
@@ -88,6 +99,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <td>{{item.Product}}</td>
               <td>{{item.Price}}</td>
               <td>{{item.Size}}</td>
+            </tr>
+          </template>
+          <template is="dom-if" if="{{isNoRecord}}">
+            <tr class="no-record">
+              <td colspan="5">There is no record for selected filter</td>
             </tr>
           </template>
         </tbody>
@@ -116,8 +132,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: String,
             value: "all",
             observer: 'handleSizeChange',
+          },
+          isRequesting: {
+            type: Boolean,
+            value: false,
+          },
+          isNoRecord: {
+            type: Boolean,
+            computed: 'computeIsNoRecord(data)',
           }
         }
+      }
+
+      computeIsNoRecord(data) {
+        return data.rows.length === 0;
       }
 
       attached() {
