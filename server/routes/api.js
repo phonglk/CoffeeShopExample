@@ -14,6 +14,22 @@ var knex = require('knex')({
   }
 });
 
+var cached = {
+  sizes: null,
+}
+function getSizeList(){
+  if (cached.sizes === null) {
+    return new Promise(function(resolve, reject){
+      knex.select().from('Size').then(function(rows){
+        cached.sizes = rows;
+        resolve(rows);
+      }).catch(reject)
+    });
+  } else {
+    return Promise.resolve(cached.sizes);
+  }
+}
+
 router.get('/', function(req, res, next) {
   res.json('Hello /api');
 });
@@ -25,7 +41,7 @@ router.get('/product/list', function(req, res, next) {
 });
 
 router.get('/size/list', function(req, res, next) {
-  knex.select().from('Size').then(function (rows){
+  getSizeList().then(function (rows){
     res.json(rows);
   })
 });
@@ -39,7 +55,7 @@ router.get('/product/list/variant', function(req, res, next) {
 router.get('/view/order', function(req, res, next) {
   Promise.all([
     knex.select().from('Product'),
-    knex.select().from('Size'),
+    getSizeList(),
     knex.raw('Select ProductVariant.Id, ProductVariant.ProductId, Product.Name as ProductName, Size.Name as SizeName' +
     ', ProductVariant.Price, Product.Type from ProductVariant, Product, Size where ' +
     'ProductVariant.SizeId = Size.Id and ProductVariant.ProductId = Product.Id'),
@@ -146,9 +162,11 @@ router.get('/view/sales/:sizeId/:type', function(req, res, next) {
   Promise.all([
     knex.raw(sqlRecords.sql, sqlRecords.whereArray),
     knex.raw(sqlSum.sql, sqlSum.whereArray),
+    getSizeList(),
   ]).then(function(response){
     res.json({
       SUM: parseFloat(response[1][0].Total.toPrecision(12)),
+      sizes: response[2],
       rows: response[0],
     });
   }).catch(function(e) {

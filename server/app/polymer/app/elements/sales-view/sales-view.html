@@ -47,17 +47,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         border-bottom: none;
       }
     </style>
-    <iron-ajax auto url="/api/view/sales/all/all" handle-as="json" on-response="responseHandler"></iron-ajax>
+    <iron-ajax id="xhr" url="/api/view/sales/{{selectedSize}}/{{selectedType}}" handle-as="json" on-response="responseHandler"></iron-ajax>
     <h1 class='page-title' tabindex="-1">Sales statistic</h1>
 
-    <paper-dropdown-menu label="Dinosaurs">
-      <paper-listbox class="dropdown-content">
-        <paper-item>allosaurus</paper-item>
-        <paper-item>brontosaurus</paper-item>
-        <paper-item>carcharodontosaurus</paper-item>
-        <paper-item>diplodocus</paper-item>
+    Filter:
+    <paper-dropdown-menu label="Type" on-iron-select="handleTypeSelect">
+      <paper-listbox class="dropdown-content" selected="0">
+        <paper-item value="all">*</paper-item>
+        <paper-item value="Coffee">Coffee</paper-item>
+        <paper-item value="Tea">Tea</paper-item>
       </paper-listbox>
     </paper-dropdown-menu>
+
+    <paper-dropdown-menu label="Size" on-iron-select="handleSizeSelect">
+      <paper-listbox class="dropdown-content" selected="0">
+        <paper-item value="all">*</paper-item>
+        <template is="dom-repeat" items="{{sizeList}}">
+          <paper-item value$="{{item.Id}}">{{item.Name}}</paper-item>
+        </template>
+      </paper-listbox>
+    </paper-dropdown-menu>
+    <hr />
     <div>Total: <b>{{data.SUM}}$</b></div>
     <div id="table-wrapper">
       <table>
@@ -89,14 +99,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     class SalesView {
       beforeRegister() {
         this.is = 'sales-view';
+        this.isAttached = false;
         this.properties = {
           data: {
             type: Object,
+          },
+          sizeList: {
+            type: Array,
+          },
+          selectedType: {
+            type: String,
+            value: "all",
+            observer: 'handleTypeChange',
+          },
+          selectedSize: {
+            type: String,
+            value: "all",
+            observer: 'handleSizeChange',
           }
         }
       }
+
+      attached() {
+        this.triggerRequest();
+        this.isAttached = true;
+      }
+
+      triggerRequest() {
+        this.$.xhr.generateRequest();
+      }
+
       responseHandler(e) {
-        const { SUM, rows } = e.detail.response;
+        const { SUM, rows, sizes } = e.detail.response;
+        this.sizeList = sizes;
         this.data = {
           SUM,
           rows: rows.map( r => ({
@@ -104,6 +139,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             PurchaseDate: new Date(r.PurchaseDate).toString(),
           }))
         }
+      }
+
+      handleTypeSelect(e) {
+        this.selectedType = e.target.selectedItem.getAttribute("value");
+      }
+
+      handleSizeSelect(e) {
+        this.selectedSize = e.target.selectedItem.getAttribute("value");
+      }
+
+      handleTypeChange(newValue, oldValue) {
+        if(this.isAttached && newValue != oldValue) this.triggerRequest();
+      }
+
+      handleSizeChange(newValue, oldValue) {
+        if(this.isAttached && newValue != oldValue) this.triggerRequest();
       }
     }
     Polymer(SalesView);
