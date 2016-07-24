@@ -118,6 +118,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           overflow: hidden;
           text-overflow: ellipsis;
         }
+
+        .datetime{
+          font-size: 11px;
+        }
       }
     </style>
     <iron-ajax id="xhr" url="/api/view/sales/{{selectedSize}}/{{selectedType}}" handle-as="json" on-response="responseHandler" loading="{{isRequesting}}"></iron-ajax>
@@ -164,7 +168,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <tr>
               <td title="{{item.PurchaseDate}}">
                 <span class="col-name">DateTime</span>
-                <span class="col-value">{{item.PurchaseDate}}</span>
+                <span class="col-value datetime">{{item.PurchaseDate}}</span>
               </td>
               <td>
                 <span class="col-name">Type</span>
