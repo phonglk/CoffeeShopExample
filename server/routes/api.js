@@ -143,7 +143,7 @@ router.get('/order_filter/:sizeId?/:type?', function(req, res, next) {
 
 router.get('/order_sum/:sizeId?/:type?', function(req, res, next) {
   var sizeId = req.params.sizeId;
-  var productId = req.params.productId;
+  var type = req.params.type;
 
   const sqlObject = orderFilterSQLGenerator(sizeId, type, true);
 
@@ -158,14 +158,14 @@ router.get('/view/sales/:sizeId/:type', function(req, res, next) {
 
   const sqlRecords = orderFilterSQLGenerator(sizeId, type, false);
   const sqlSum = orderFilterSQLGenerator(sizeId, type, true);
-
+  console.log(sqlRecords.sql)
   Promise.all([
     knex.raw(sqlRecords.sql, sqlRecords.whereArray),
     knex.raw(sqlSum.sql, sqlSum.whereArray),
     getSizeList(),
   ]).then(function(response){
     res.json({
-      SUM: parseFloat(response[1][0].Total.toPrecision(12)),
+      SUM: response[1][0].Total === null ? 0 : parseFloat(response[1][0].Total.toPrecision(12)),
       sizes: response[2],
       rows: response[0],
     });
