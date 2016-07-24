@@ -1,0 +1,114 @@
+#order-view{
+  padding: 10px;
+
+  #overlay {
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 99;
+    background-color: rgba(255,255,255,0.3);
+  }
+
+  paper-progress {
+    width: 100%;
+    position: absolute;
+    top:0;
+    z-index: 100;
+    left:0;
+  }
+
+  .menu__table{
+    min-width: 465px;
+  }
+
+  .menu__table header,
+  .menu__row{
+    display: flex;
+    margin: 5px;
+    padding: 5px 0;
+    border-bottom: 1px solid black;
+  }
+  .header__item,
+  .menu__item {
+    flex: 1 1 auto;
+  }
+  .drink {
+    flex-basis: 100px;
+    flex-shrink: 0;
+    flex-grow: 0;
+  }
+  .menu__table header {
+    border-bottom: 2px solid black;
+  }
+  .menu__table header .size{
+    text-align: center;
+  }
+  .menu__row:last-of-type{
+    border-bottom: none;
+  }
+  .menu__item {
+    line-height: 30px;
+  }
+  .menu__item.drink {
+    line-height: 50px;
+  }
+  .menu__item.size {
+    /*border: 1px solid black;*/
+    display: block;
+    text-align: center;
+    margin: 0 5px;
+  }
+  .menu__item.size .button-inner {
+    width: 100%;
+    font-size: 18px;
+    color: white;
+    font-weight: lighter;
+    box-sizing: border-box;
+    display: flex;
+    padding: 0 5px;
+  }
+  .menu__item.size .button-inner .size-name,
+  .menu__item.size .button-inner .price {
+    flex: 1 1 auto;
+  }
+
+  .menu__item.size .button-inner .size-name {
+    display: none;
+  }
+
+  @media (max-width: 600px) {
+    .menu__table {
+      min-width: 0;
+    }
+    .menu__table header {
+      display: none;
+    }
+    .menu__table header,
+    .menu__row{
+      flex-direction: column;
+    }
+    .menu__row {
+      padding-bottom: 20px;
+    }
+    .drink {
+      line-height: 30px;
+      flex-basis: 30px;
+      text-align: center;
+    }
+    .menu__item.size {
+      margin: 5px 0;
+    }
+
+    .menu__item.size .button-inner .size-name {
+      display: block;
+      text-align: left;
+    }
+
+    .menu__item.size .button-inner .price {
+      text-align: right;
+    }
+  }
+}

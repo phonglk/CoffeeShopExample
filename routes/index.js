@@ -10,4 +10,9 @@ router.get('/polymer*', function(req, res, next) {
   res.render('index', { basePath: basePath });
 });
 
+router.get('/react*', function(req, res, next) {
+  var basePath = '/dist/react';
+  res.render('react_index', { basePath: basePath });
+});
+
 module.exports = router;
