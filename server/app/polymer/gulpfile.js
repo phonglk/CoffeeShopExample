@@ -215,7 +215,13 @@ gulp.task('cache-config', function(callback) {
 
 // Clean output directory
 gulp.task('clean', function() {
-  return del(['../../public/polymer/', dist()]);
+  return del([
+    '../../public/polymer/**',
+    '!../../public/polymer',
+    '!../../public/polymer/bower_components',
+    '!../../public/polymer/bower_components/**',
+    dist()
+  ], { force: true });
 });
 
 // Watch files for changes & reload
