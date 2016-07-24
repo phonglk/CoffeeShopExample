@@ -68,6 +68,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         padding-top: 30px;
       }
 
+      .col-name {
+        display: none;
+      }
+
       @media (max-width: 600px) {
         .filter-wrapper {
           flex-direction: column;
@@ -75,6 +79,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         .filter-wrapper * {
           flex: 1 1 auto;
           width: 100%;
+        }
+        table {
+          min-width: 100px;
+        }
+        thead {
+          display: none;
+        }
+        tbody {
+          padding: 2px;
+          display: flex;
+          flex-direction: column;
+        }
+        tbody tr {
+          display: flex;
+          flex-direction: column;
+          margin-top: 20px;
+          box-shadow: 1px 1px 4px 0px rgba(162, 162, 162, 0.8);
+        }
+        tbody tr td {
+          display: flex;
+          width: 100%;
+          flex-direction: row;
+        }
+        td {
+          border-bottom: none;
+        }
+        .col-name {
+          font-weight: bold;
+          display: block;
+          text-align: left;
+          flex: 1 0 80px;
+        }
+        .col-value {
+          text-align: right;
+          flex: 1 1 auto;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
       }
     </style>
@@ -120,11 +162,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <tbody>
           <template is="dom-repeat" items="{{data.rows}}">
             <tr>
-              <td>{{item.PurchaseDate}}</td>
-              <td>{{item.Type}}</td>
-              <td>{{item.Product}}</td>
-              <td>{{item.Price}}</td>
-              <td>{{item.Size}}</td>
+              <td title="{{item.PurchaseDate}}">
+                <span class="col-name">DateTime</span>
+                <span class="col-value">{{item.PurchaseDate}}</span>
+              </td>
+              <td>
+                <span class="col-name">Type</span>
+                <span class="col-value">{{item.Type}}</span>
+              </td>
+              <td>
+                <span class="col-name">Drink</span>
+                <span class="col-value">{{item.Product}}</span>
+              </td>
+              <td>
+                <span class="col-name">Price</span>
+                <span class="col-value">{{item.Price}}</span>
+              </td>
+              <td>
+                <span class="col-name">Size</span>
+                <span class="col-value">{{item.Size}}</span>
+              </td>
             </tr>
           </template>
           <template is="dom-if" if="{{isNoRecord}}">
